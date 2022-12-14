@@ -9,18 +9,12 @@ headers = {
 '''
 
 def findLink(songName):
+    import urllib.request
+    import re       
     query = songName
     query = query.replace(' ', '+')
-
-    # search for the best similar matching video
-    url = 'https://www.youtube.com/results?search_query=' + query
-    source_code = requests.get(url,timeout=15)
-    plain_text = source_code.text
-    soup = BeautifulSoup(plain_text, "html.parser")
-
-    # fetches the url of the video
-    songs = soup.findAll('div', {'class': 'yt-lockup-video'})
-    song = songs[0].contents[0].contents[0].contents[0]
-
-    link = song['href']
-    webbrowser.open('https://www.youtube.com' + link)
+    args = '+'.join(query)
+    args=args.replace(" ", "%20").replace('&','%26') 
+    html = urllib.request.urlopen(f"https://www.youtube.com/results?search_query={args}")
+    video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+    webbrowser.open('https://www.youtube.com/watch?v=' + video_ids[0])
